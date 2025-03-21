@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MedLink</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #8739e6;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        .chatbot {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: #fff; /* Keep the background white */
+        color: #333; /* Make the text color darker for visibility */
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 100; /* Make sure the chatbot is always on top */
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #e63946;
+            color: white;
+            cursor: pointer;
+        }
+        .buffering {
+            display: none;
+            font-size: 18px;
+            color: #e63946;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background: #333;
+            color: white;
+            margin-top: 20px;
+        }
+        .question-container {
+            display: none;
+            margin-top: 20px;
+            text-align: left;
+        }
+        .question-container label {
+            display: block;
+            margin: 10px 0;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>MedLink</h1>
+        <div class="chatbot" id="chatbot-box">Finding Your Nemo<br>How can I assist you today?</div>
+    </header>
+    
+    <div class="container">
+        <h2 id="welcome-text">Welcome to MedLink</h2>
+        <p id="description-text">We aim to bridge language barriers and provide healthcare access to those in need.</p>
+        <label for="language">Choose your language:</label>
+        <select id="language" onchange="updateQuestions()">
+            <option value="English">English</option>
+            <option value="French">Français</option>
+            <option value="German">Deutsch</option>
+            <option value="Spanish">Español</option>
+            <option value="Russian">Pусский</option>
+            <option value="Pidgin English">Pidgin English</option>
+        </select>
+        <p id="translated-text">Select a language to translate messages.</p>
+    </div>
+    
+    <div class="container">
+        <h3 id="connect-heading">Connect with a Healthcare Professional</h3>
+        <p id="question-text">Answer a few questions, and we'll connect you.</p>
+        <button onclick="startHealthQuestions()">Start</button>
+        
+        <!-- Health Question Section -->
+        <div class="question-container" id="question-container">
+            <form id="health-questions-form">
+                <div>
+                    <label id="q1">1. Do you have a fever?</label>
+                    <select id="fever">
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                <div>
+                    <label id="q2">2. Do you have a headache?</label>
+                    <select id="headache">
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                <div>
+                    <label id="q3">3. Are you experiencing fatigue?</label>
+                    <select id="fatigue">
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                <div>
+                    <label id="q4">4. Do you have difficulty breathing?</label>
+                    <select id="breathing">
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                <div>
+                    <label id="q5">5. Do you have a cough?</label>
+                    <select id="cough">
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                <div>
+                    <label id="q6">6. Do you have a sore throat?</label>
+                    <select id="sore-throat">
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                <div>
+                    <label id="q7">7. Are you experiencing muscle pain?</label>
+                    <select id="muscle-pain">
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                <div>
+                    <label id="q8">8. Have you recently traveled internationally?</label>
+                    <select id="travel">
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                <div>
+                    <label id="q9">9. Have you been in close contact with anyone showing symptoms of illness?</label>
+                    <select id="contact">
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                <div>
+                    <label id="q10">10. Are you experiencing chest pain?</label>
+                    <select id="chest-pain">
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                <button type="button" onclick="submitHealthQuestions()">Submit</button>
+            </form>
+        </div>
+        
+        <p class="buffering" id="buffering">Connecting to a professional...</p>
+    </div>
+    
+    <footer>
+        <p>&copy; MedLink Website by EDET, Eti-Abasi-Laurel</p>
+    </footer>
+    
+    <script>
+        const translations = {
+            "English": {
+                "welcome-text": "Welcome to MedLink",
+                "description-text": "We aim to bridge language barriers and provide healthcare access to those in need.",
+                "connect-heading": "Connect with a Healthcare Professional",
+                "question-text": "Answer a few questions, and we'll connect you.",
+                "connect-professional": "Connecting to a professional...",
+                "connected-message": "You are now connected!",
+                "chatbot-message": "How can I assist you today?",
+                "yes": "Yes",
+                "no": "No"
+            },
+            "French": {
+                "welcome-text": "Bienvenue sur MedLink",
+                "description-text": "Nous visons à combler les barrières linguistiques et à fournir un accès aux soins de santé à ceux qui en ont besoin.",
+                "connect-heading": "Connectez-vous avec un professionnel de santé",
+                "question-text": "Répondez à quelques questions, et nous vous mettrons en relation.",
+                "connect-professional": "Connexion avec un professionnel...",
+                "connected-message": "Vous êtes maintenant connecté !",
+                "chatbot-message": "Comment puis-je vous aider aujourd'hui ?",
+                "yes": "Oui",
+                "no": "Non"
+            },
+            "German": {
+                "welcome-text": "Willkommen bei MedLink",
+                "description-text": "Wir möchten Sprachbarrieren überwinden und Menschen, die keinen Zugang zu Gesundheitsdiensten haben, helfen.",
+                "connect-heading": "Verbindung mit einem Gesundheitsprofi herstellen",
+                "question-text": "Beantworten Sie einige Fragen, und wir stellen den Kontakt her.",
+                "connect-professional": "Verbindung zu einem Fachmann wird hergestellt...",
+                "connected-message": "Sie sind jetzt verbunden!",
+                "chatbot-message": "Wie kann ich Ihnen heute helfen?",
+                "yes": "Ja",
+                "no": "Nein"
+            },
+            "Spanish": {
+                "welcome-text": "Bienvenido a MedLink",
+                "description-text": "Nuestro objetivo es superar las barreras del idioma y proporcionar acceso a la atención médica a quienes lo necesiten.",
+                "connect-heading": "Conéctese con un profesional de la salud",
+                "question-text": "Responda algunas preguntas y lo conectaremos.",
+                "connect-professional": "Conectando con un profesional...",
+                "connected-message": "¡Ahora estás conectado!",
+                "chatbot-message": "¿Cómo puedo ayudarte hoy?",
+                "yes": "Sí",
+                "no": "No"
+            },
+            "Russian": {
+                "welcome-text": "Добро пожаловать в MedLink",
+                "description-text": "Мы стремимся преодолеть языковые барьеры и обеспечить доступ к медицинской помощи тем, кто в этом нуждается.",
+                "connect-heading": "Связь с медицинским специалистом",
+                "question-text": "Ответьте на несколько вопросов, и мы свяжем вас.",
+                "connect-professional": "Подключение к специалисту...",
+                "connected-message": "Вы теперь подключены!",
+                "chatbot-message": "Как я могу помочь вам сегодня?",
+                "yes": "Да",
+                "no": "Нет"
+            },
+            "Pidgin English": {
+                "welcome-text": "Welcome to MedLink",
+                "description-text": "We dey try help people connect with healthcare even if language no dey reach.",
+                "connect-heading": "Connect wit Healthcare Pro",
+                "question-text": "Answer small questions, den we go connect you.",
+                "connect-professional": "We dey connect you...",
+                "connected-message": "You don connect now!",
+                "chatbot-message": "How I fit help you today?",
+                "yes": "Yes",
+                "no": "No"
+            }
+        };
+
+        function updateQuestions() {
+            const lang = document.getElementById("language").value;
+
+            // Update the text on the page according to the selected language
+            document.getElementById("welcome-text").textContent = translations[lang]["welcome-text"];
+            document.getElementById("description-text").textContent = translations[lang]["description-text"];
+            document.getElementById("connect-heading").textContent = translations[lang]["connect-heading"];
+            document.getElementById("question-text").textContent = translations[lang]["question-text"];
+            document.getElementById("buffering").textContent = translations[lang]["connect-professional"];
+            document.getElementById("chatbot-box").innerHTML = "Finding Your Nemo<br>" + translations[lang]["chatbot-message"];
+
+            // Update all Yes/No options across all questions
+            const yesOption = `<option value="Yes">${translations[lang]["yes"]}</option>`;
+            const noOption = `<option value="No">${translations[lang]["no"]}</option>`;
+
+            const questionIds = ['fever', 'headache', 'fatigue', 'breathing', 'cough', 'sore-throat', 'muscle-pain', 'travel', 'contact', 'chest-pain'];
+            
+            questionIds.forEach(id => {
+                document.getElementById(id).innerHTML = `${yesOption}${noOption}`;
+            });
+        }
+
+        // Function to start health questions
+        function startHealthQuestions() {
+            document.getElementById("question-container").style.display = "block";
+            document.getElementById("question-text").style.display = "none";
+            document.querySelector("button").style.display = "none";
+        }
+
+        // Function to simulate connection after health questions are answered
+        function submitHealthQuestions() {
+            document.getElementById("question-container").style.display = "none";
+            document.getElementById("buffering").style.display = "block";
+            setTimeout(() => {
+                document.getElementById("buffering").style.display = "none";
+                alert("You are now connected to a healthcare professional.");
+            }, 3000);
+        }
+
+        // Initial load
+        window.onload = updateQuestions;
+    </script>
+</body>
+</html>
